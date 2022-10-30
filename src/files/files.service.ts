@@ -69,11 +69,11 @@ export class FilesService {
       if (existsSync(`./input/${item?.fileId}.tsv`)) {
         unlinkSync(`./input/${item?.fileId}.tsv`);
       }
-      if (existsSync(`./output/${deleteQueue[0]?.fileId}_en.ts`)) {
-        unlinkSync(`./output/${deleteQueue[0]?.fileId}_en.ts`);
+      if (existsSync(`./output/${item?.fileId}_en.ts`)) {
+        unlinkSync(`./output/${item?.fileId}_en.ts`);
       }
-      if (existsSync(`./output/${deleteQueue[0]?.fileId}_ko.ts`)) {
-        unlinkSync(`./output/${deleteQueue[0]?.fileId}_ko.ts`);
+      if (existsSync(`./output/${item?.fileId}_ko.ts`)) {
+        unlinkSync(`./output/${item?.fileId}_ko.ts`);
       }
     });
 
