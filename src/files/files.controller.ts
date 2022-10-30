@@ -3,8 +3,9 @@ import Busboy from "busboy";
 import { FilesService } from "./files.service";
 
 export class FilesController {
-  constructor(private fileService: FilesService) {}
+  constructor(private filesService: FilesService) {}
 
+  // upload
   async upload(req: Request, res: Response) {
     const busboy = Busboy({
       headers: req.headers,
@@ -13,8 +14,8 @@ export class FilesController {
     let uniqueId: string;
 
     busboy.on("file", async (_name, stream) => {
-      const id = await this.fileService.readCsvFile(stream);
-      await this.fileService.writeJsonFile(id);
+      const id = await this.filesService.readCsvFile(stream);
+      await this.filesService.writeJsonFile(id);
 
       uniqueId = id;
     });
@@ -35,6 +36,7 @@ export class FilesController {
     req.pipe(busboy);
   }
 
+  // download
   async downloadEn(req: Request, res: Response) {
     try {
       const { fileId } = req.query;
@@ -70,6 +72,33 @@ export class FilesController {
       }
 
       res.download(`./output/${fileId}_ko.ts`);
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(500).json(error);
+      }
+      return res.status(500).json({
+        message: "서버 에러가 발생했습니다.",
+        status: "error",
+      });
+    }
+  }
+
+  // cron-job: Periodically clear the cache.
+  async clearCache(req: Request, res: Response) {
+    try {
+      this.filesService.clearCache().then((result) => {
+        if (result) {
+          return res.status(200).json({
+            data: { deleteQueue: result },
+            status: "success",
+          });
+        } else {
+          return res.status(500).json({
+            message: "크론잡 수행(clearCache)에 실패했습니다.",
+            status: "error",
+          });
+        }
+      });
     } catch (error) {
       if (error instanceof Error) {
         return res.status(500).json(error);
